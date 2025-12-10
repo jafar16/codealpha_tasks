@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjectFlow - Collaborative Project Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Modern Dark Mobile App Styles */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        /* Dark Theme Variables */
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #334155;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+        }
+        
+        /* Smooth Page Transitions */
+        .page-transition {
+            animation: pageSlide 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes pageSlide {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Card Animations */
+        .card-appear {
+            animation: cardAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:active {
+            transform: scale(0.97);
+        }
+        
+        /* Floating Elements */
+        .float-animation {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Pulse Animation */
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Ripple Effect */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .ripple:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        /* Glassmorphism Dark */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+        }
+        
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(100, 116, 139, 0.2);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Task Card Animations */
+        .task-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        }
+        .task-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dragging {
+            opacity: 0.7;
+            transform: rotate(3deg) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .drag-over {
+            border: 2px dashed #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        
+        /* Priority Indicators */
+        .priority-high { 
+            border-left: 4px solid #ef4444;
+            box-shadow: -4px 0 0 rgba(239, 68, 68, 0.2);
+        }
+        .priority-medium { 
+            border-left: 4px solid #f59e0b;
+            box-shadow: -4px 0 0 rgba(245, 158, 11, 0.2);
+        }
+        .priority-low { 
+            border-left: 4px solid #10b981;
+            box-shadow: -4px 0 0 rgba(16, 185, 129, 0.2);
+        }
+        
+        /* Notification Toast */
+        .notification {
+            animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Modal Animations */
+        .modal-backdrop {
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            animation: modalSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(100px) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Mobile Bottom Sheet */
+        @media (max-width: 768px) {
+            .mobile-modal {
+                animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+        }
+        
+        /* FAB Animations */
+        .fab {
+            animation: fabBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+        }
+        .fab:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+        }
+        .fab:active {
+            transform: scale(0.95);
+        }
+        @keyframes fabBounce {
+            0% { 
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.2) rotate(180deg);
+            }
+            100% { 
+                transform: scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+        
+        /* Progress Bar Animation */
+        .progress-bar {
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Button Press Effect */
+        .btn-press {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-press:active {
+            transform: scale(0.95);
+            opacity: 0.8;
+        }
+        
+        /* Shake Animation for Errors */
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97);
+        }
+        @keyframes shake {
+            10%, 90% { transform: translateX(-2px); }
+            20%, 80% { transform: translateX(4px); }
+            30%, 50%, 70% { transform: translateX(-8px); }
+            40%, 60% { transform: translateX(8px); }
+        }
+        
+        /* Bounce In */
+        .bounce-in {
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        /* Rotate Animation */
+        .rotate-animation {
+            animation: rotate 2s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Gradient Background Animation */
+        .animated-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 10s ease infinite;
+        }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Count Badge Pulse */
+        .badge-pulse {
+            animation: badgePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes badgePulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.1);
+            }
+        }
+        
+        /* Slide Menu */
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        /* Kanban Scroll */
+        .kanban-container {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        /* Mobile Enhancements */
+        @media (max-width: 768px) {
+            .kanban-column {
+                scroll-snap-align: start;
+                min-width: 85vw;
+            }
+            .main-content {
+                padding-bottom: 80px;
+            }
+        }
+        
+        /* Mobile Enhancements */
+        @media (max-width: 768px) {
+            .mobile-menu {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            .mobile-menu.open {
+                transform: translateX(0);
+            }
+            .kanban-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+            }
+            .kanban-column {
+                scroll-snap-align: start;
+                min-width: 85vw;
+            }
+            .bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 40;
+            }
+            .main-content {
+                padding-bottom: 80px;
+            }
+        }
+        
+        /* Pull to Refresh */
+        .pull-to-refresh {
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        .pull-to-refresh.pulling {
+            transform: translateY(60px);
+        }
+        
+        /* Touch Feedback */
+        .touch-feedback:active {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+        
+        /* Swipe Indicator */
+        .swipe-indicator {
+            animation: swipe 2s infinite;
+        }
+        @keyframes swipe {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(20px); }
+        }
+        
+        /* Smooth Scrolling */
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* FAB Animation */
+        .fab {
+            animation: fabBounce 0.5s ease;
+        }
+        @keyframes fabBounce {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Modal for Mobile */
+        @media (max-width: 768px) {
+            .mobile-modal {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 20px 20px 0 0;
+                max-height: 90vh;
+                animation: slideUp 0.3s ease-out;
+            }
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900">
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass p-8 rounded-3xl shadow-2xl w-full max-w-md bounce-in">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center float-animation shadow-lg shadow-purple-500/50">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-bold gradient-text mb-2">ProjectFlow</h1>
+                <p class="text-slate-400 text-sm">Collaborate & Manage Projects</p>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <h2 class="text-xl font-semibold mb-4 text-white">Login</h2>
+                <input type="text" id="loginUsername" placeholder="Username" class="w-full p-3 mb-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition">
+                <input type="password" id="loginPassword" placeholder="Password" class="w-full p-3 mb-4 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition">
+                <button onclick="login()" class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white p-3 rounded-lg hover:from-blue-700 hover:to-blue-600 font-semibold shadow-lg shadow-blue-500/30 transition">Login</button>
+                <p class="text-center mt-4 text-sm text-slate-400">
+                    Don't have an account? 
+                    <button onclick="toggleAuth()" class="text-blue-400 hover:text-blue-300 font-semibold transition">Register</button>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="hidden">
+                <h2 class="text-xl font-semibold mb-4 text-white">Register</h2>
+                <input type="text" id="registerName" placeholder="Full Name" class="w-full p-3 mb-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition">
+                <input type="text" id="registerUsername" placeholder="Username" class="w-full p-3 mb-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition">
+                <input type="email" id="registerEmail" placeholder="Email" class="w-full p-3 mb-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition">
+                <input type="password" id="registerPassword" placeholder="Password" class="w-full p-3 mb-4 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition">
+                <button onclick="register()" class="w-full bg-gradient-to-r from-purple-600 to-purple-500 text-white p-3 rounded-lg hover:from-purple-700 hover:to-purple-600 font-semibold shadow-lg shadow-purple-500/30 transition">Register</button>
+                <p class="text-center mt-4 text-sm text-slate-400">
+                    Already have an account? 
+                    <button onclick="toggleAuth()" class="text-purple-400 hover:text-purple-300 font-semibold transition">Login</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="appScreen" class="hidden">
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenuOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onclick="toggleMobileMenu()"></div>
+        
+        <!-- Mobile Side Menu -->
+        <div id="mobileMenu" class="mobile-menu fixed left-0 top-0 bottom-0 w-64 bg-white shadow-xl z-50 md:hidden">
+            <div class="p-4 border-b">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-blue-600">Menu</h2>
+                    <button onclick="toggleMobileMenu()" class="p-2 hover:bg-gray-100 rounded">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                        <span id="userInitialMobile"></span>
+                    </div>
+                    <div>
+                        <div id="userNameMobile" class="font-semibold"></div>
+                        <button onclick="logout()" class="text-sm text-red-500 hover:text-red-700">Logout</button>
+                    </div>
+                </div>
+                <nav class="space-y-2">
+                    <button onclick="showDashboard(); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded hover:bg-gray-100 flex items-center space-x-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        <span>Dashboard</span>
+                    </button>
+                    <button onclick="toggleNotifications(); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded hover:bg-gray-100 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span>Notifications</span>
+                        </div>
+                        <span id="notificationBadgeMobile" class="hidden bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-white shadow-md sticky top-0 z-30">
+            <div class="px-4 py-3 flex justify-between items-center">
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden p-2 hover:bg-gray-100 rounded">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <h1 class="text-xl md:text-2xl font-bold text-blue-600 cursor-pointer" onclick="showDashboard()">ProjectFlow</h1>
+                    <button onclick="showDashboard()" class="hidden md:block text-gray-600 hover:text-gray-800">Dashboard</button>
+                </div>
+                
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <!-- Desktop Notifications -->
+                    <div class="relative hidden md:block">
+                        <button onclick="toggleNotifications()" class="relative p-2 hover:bg-gray-100 rounded-full touch-feedback">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span id="notificationBadge" class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                        </button>
+                        <div id="notificationPanel" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
+                            <div class="p-4 border-b">
+                                <h3 class="font-semibold">Notifications</h3>
+                            </div>
+                            <div id="notificationList" class="p-2">
+                                <p class="text-center text-gray-500 py-4">No notifications</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Desktop User Info -->
+                    <div class="hidden md:flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                            <span id="userInitial"></span>
+                        </div>
+                        <span id="userName" class="font-medium"></span>
+                        <button onclick="logout()" class="ml-2 text-sm text-red-500 hover:text-red-700">Logout</button>
+                    </div>
+                    
+                    <!-- Mobile Notification Icon -->
+                    <button onclick="toggleNotifications()" class="md:hidden relative p-2 hover:bg-gray-100 rounded-full touch-feedback">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span id="notificationBadgeHeader" class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Dashboard View -->
+        <div id="dashboardView" class="container mx-auto px-4 py-8">
+            <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 space-y-4 md:space-y-0">
+                <h2 class="text-3xl font-bold text-gray-800">My Projects</h2>
+                <button onclick="openCreateProjectModal()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center justify-center touch-feedback">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    New Project
+                </button>
+            </div>
+
+            <!-- Dashboard Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Projects</p>
+                            <p id="totalProjects" class="text-2xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">In Progress</p>
+                            <p id="inProgressProjects" class="text-2xl font-bold text-yellow-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Completed</p>
+                            <p id="completedProjects" class="text-2xl font-bold text-green-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">Total Tasks</p>
+                            <p id="totalTasks" class="text-2xl font-bold text-purple-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+                <button onclick="filterProjects('all')" id="filterAll" class="project-filter-btn px-4 py-2 rounded-full bg-blue-500 text-white whitespace-nowrap touch-feedback">
+                    All Projects
+                </button>
+                <button onclick="filterProjects('inprogress')" id="filterInProgress" class="project-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap touch-feedback">
+                    In Progress
+                </button>
+                <button onclick="filterProjects('completed')" id="filterCompleted" class="project-filter-btn px-4 py-2 rounded-full bg-gray-200 text-gray-700 whitespace-nowrap touch-feedback">
+                    Completed
+                </button>
+            </div>
+
+            <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Projects will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Board View -->
+        <div id="boardView" class="hidden main-content px-4 py-4 md:py-8">
+            <div class="mb-6">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 space-y-3 md:space-y-0">
+                    <div>
+                        <button onclick="showDashboard()" class="text-blue-500 hover:underline mb-2 touch-feedback">← Back to Dashboard</button>
+                        <h2 id="boardTitle" class="text-2xl md:text-3xl font-bold text-gray-800"></h2>
+                        <p id="boardDescription" class="text-gray-600 text-sm md:text-base"></p>
+                    </div>
+                    <div class="hidden md:flex space-x-2">
+                        <button onclick="openManageMembersModal()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 touch-feedback">
+                            Manage Members
+                        </button>
+                        <button onclick="openCreateTaskModal()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 touch-feedback">
+                            + Add Task
+                        </button>
+                    </div>
+                </div>
+                <div id="projectMembers" class="flex items-center space-x-2 flex-wrap">
+                    <span class="text-sm text-gray-600">Members:</span>
+                    <!-- Member avatars will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Swipe hint for mobile -->
+            <div class="md:hidden text-center text-sm text-gray-500 mb-3 flex items-center justify-center space-x-2">
+                <span>Swipe to see more columns</span>
+                <svg class="w-4 h-4 swipe-indicator" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </div>
+
+            <!-- Kanban Board -->
+            <div class="kanban-container flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0">
+                <!-- To Do Column -->
+                <div class="kanban-column bg-gray-100 p-3 md:p-4 rounded-lg flex-shrink-0">
+                    <h3 class="font-bold text-base md:text-lg mb-3 md:mb-4 flex items-center justify-between">
+                        <span>📋 To Do</span>
+                        <span id="todoCount" class="text-xs md:text-sm bg-gray-300 px-2 py-1 rounded-full">0</span>
+                    </h3>
+                    <div id="todoColumn" class="space-y-2 md:space-y-3 min-h-[200px]" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-status="todo">
+                        <!-- Tasks will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- In Progress Column -->
+                <div class="kanban-column bg-gray-100 p-3 md:p-4 rounded-lg flex-shrink-0">
+                    <h3 class="font-bold text-base md:text-lg mb-3 md:mb-4 flex items-center justify-between">
+                        <span>⚙️ In Progress</span>
+                        <span id="inprogressCount" class="text-xs md:text-sm bg-gray-300 px-2 py-1 rounded-full">0</span>
+                    </h3>
+                    <div id="inprogressColumn" class="space-y-2 md:space-y-3 min-h-[200px]" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-status="inprogress">
+                        <!-- Tasks will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Done Column -->
+                <div class="kanban-column bg-gray-100 p-3 md:p-4 rounded-lg flex-shrink-0">
+                    <h3 class="font-bold text-base md:text-lg mb-3 md:mb-4 flex items-center justify-between">
+                        <span>✅ Done</span>
+                        <span id="doneCount" class="text-xs md:text-sm bg-gray-300 px-2 py-1 rounded-full">0</span>
+                    </h3>
+                    <div id="doneColumn" class="space-y-2 md:space-y-3 min-h-[200px]" ondrop="drop(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" data-status="done">
+                        <!-- Tasks will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile FAB Buttons -->
+            <div class="md:hidden fixed bottom-20 right-4 flex flex-col space-y-3">
+                <button onclick="openManageMembersModal()" class="fab bg-gray-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-gray-700 touch-feedback">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </button>
+                <button onclick="openCreateTaskModal()" class="fab bg-green-500 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center hover:bg-green-600 touch-feedback">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Bottom Navigation (optional) -->
+        <div id="bottomNav" class="md:hidden bottom-nav bg-white border-t shadow-lg hidden">
+            <div class="flex justify-around items-center h-16">
+                <button onclick="showDashboard()" class="flex flex-col items-center justify-center flex-1 touch-feedback">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Dashboard</span>
+                </button>
+                <button onclick="toggleNotifications()" class="flex flex-col items-center justify-center flex-1 relative touch-feedback">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Alerts</span>
+                </button>
+                <button onclick="toggleMobileMenu()" class="flex flex-col items-center justify-center flex-1 touch-feedback">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <span class="text-xs mt-1">Menu</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div id="createProjectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop">
+        <div class="bg-white p-6 rounded-lg w-96">
+            <h3 class="text-xl font-bold mb-4">Create New Project</h3>
+            <input type="text" id="newProjectName" placeholder="Project Name" class="w-full p-2 mb-3 border rounded">
+            <textarea id="newProjectDescription" placeholder="Description" class="w-full p-2 mb-4 border rounded" rows="3"></textarea>
+            <div class="flex space-x-2">
+                <button onclick="createProject()" class="flex-1 bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Create</button>
+                <button onclick="closeCreateProjectModal()" class="flex-1 bg-gray-300 text-gray-700 p-2 rounded hover:bg-gray-400">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div id="createTaskModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop">
+        <div class="bg-white p-6 rounded-lg w-96">
+            <h3 class="text-xl font-bold mb-4">Create New Task</h3>
+            <input type="text" id="newTaskTitle" placeholder="Task Title" class="w-full p-2 mb-3 border rounded">
+            <textarea id="newTaskDescription" placeholder="Description" class="w-full p-2 mb-3 border rounded" rows="3"></textarea>
+            <select id="newTaskPriority" class="w-full p-2 mb-3 border rounded">
+                <option value="low">Low Priority</option>
+                <option value="medium" selected>Medium Priority</option>
+                <option value="high">High Priority</option>
+            </select>
+            <input type="date" id="newTaskDueDate" class="w-full p-2 mb-3 border rounded">
+            <select id="newTaskAssignee" class="w-full p-2 mb-4 border rounded">
+                <option value="">Assign to...</option>
+            </select>
+            <div class="flex space-x-2">
+                <button onclick="createTask()" class="flex-1 bg-green-500 text-white p-2 rounded hover:bg-green-600">Create</button>
+                <button onclick="closeCreateTaskModal()" class="flex-1 bg-gray-300 text-gray-700 p-2 rounded hover:bg-gray-400">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div id="taskDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop overflow-y-auto">
+        <div class="bg-white p-6 rounded-lg w-full max-w-2xl m-4">
+            <div class="flex justify-between items-start mb-4">
+                <h3 id="taskDetailTitle" class="text-2xl font-bold flex-1"></h3>
+                <button onclick="closeTaskDetailModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-4 flex items-center space-x-4">
+                <span id="taskDetailPriority" class="px-3 py-1 rounded-full text-sm font-semibold"></span>
+                <span id="taskDetailStatus" class="px-3 py-1 rounded-full text-sm font-semibold"></span>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="font-semibold mb-2">Description</h4>
+                <p id="taskDetailDescription" class="text-gray-700"></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <h4 class="font-semibold mb-2">Assigned To</h4>
+                    <div id="taskDetailAssignee" class="flex items-center space-x-2"></div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2">Due Date</h4>
+                    <p id="taskDetailDueDate" class="text-gray-700"></p>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="border-t pt-4">
+                <h4 class="font-semibold mb-3">Comments</h4>
+                <div id="taskComments" class="space-y-3 mb-4 max-h-60 overflow-y-auto">
+                    <!-- Comments will be loaded here -->
+                </div>
+                <div class="flex space-x-2">
+                    <input type="text" id="newComment" placeholder="Add a comment..." class="flex-1 p-2 border rounded">
+                    <button onclick="addComment()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Send</button>
+                </div>
+            </div>
+
+            <div class="mt-6 flex space-x-2">
+                <button onclick="deleteTask()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Delete Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Members Modal -->
+    <div id="manageMembersModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal-backdrop">
+        <div class="bg-white p-6 rounded-lg w-96">
+            <h3 class="text-xl font-bold mb-4">Manage Project Members</h3>
+            <div class="mb-4">
+                <input type="text" id="addMemberUsername" placeholder="Enter username to add" class="w-full p-2 border rounded mb-2">
+                <button onclick="addMemberToProject()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Member</button>
+            </div>
+            <div class="border-t pt-4">
+                <h4 class="font-semibold mb-2">Current Members</h4>
+                <div id="currentMembersList" class="space-y-2">
+                    <!-- Members will be loaded here -->
+                </div>
+            </div>
+            <button onclick="closeManageMembersModal()" class="w-full mt-4 bg-gray-300 text-gray-700 p-2 rounded hover:bg-gray-400">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let currentUser = null;
+        let currentProject = null;
+        let currentTask = null;
+        let notifications = [];
+
+        // Initialize app
+        function init() {
+            // Check if user is logged in
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showApp();
+            }
+
+            // Listen for storage changes (simulating real-time updates)
+            window.addEventListener('storage', handleStorageChange);
+            
+            // Simulate periodic updates check
+            setInterval(checkForUpdates, 3000);
+        }
+
+        // Authentication Functions
+        function toggleAuth() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('registerForm').classList.toggle('hidden');
+        }
+
+        function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+
+            if (!name || !username || !email || !password) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            if (users.find(u => u.username === username)) {
+                showNotification('Username already exists', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: Date.now().toString(),
+                name,
+                username,
+                email,
+                password,
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            showNotification('Registration successful! Please login.', 'success');
+            toggleAuth();
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showNotification('Please enter username and password', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                showApp();
+                showNotification('Welcome back, ' + user.name + '!', 'success');
+            } else {
+                showNotification('Invalid credentials', 'error');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('authScreen').classList.remove('hidden');
+            document.getElementById('appScreen').classList.add('hidden');
+            showNotification('Logged out successfully', 'success');
+        }
+
+        function showApp() {
+            document.getElementById('authScreen').classList.add('hidden');
+            document.getElementById('appScreen').classList.remove('hidden');
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('userInitial').textContent = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('userNameMobile').textContent = currentUser.name;
+            document.getElementById('userInitialMobile').textContent = currentUser.name.charAt(0).toUpperCase();
+            loadNotifications();
+            showDashboard();
+        }
+
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            menu.classList.toggle('open');
+            overlay.classList.toggle('hidden');
+        }
+
+        // Project Functions
+        function showDashboard() {
+            document.getElementById('dashboardView').classList.remove('hidden');
+            document.getElementById('boardView').classList.add('hidden');
+            currentProject = null;
+            loadProjects();
+        }
+
+        let currentFilter = 'all';
+
+        function loadProjects(filter = currentFilter) {
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            const userProjects = projects.filter(p => 
+                p.members.includes(currentUser.id) || p.createdBy === currentUser.id
+            );
+
+            // Calculate stats
+            const allTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            const userTasks = allTasks.filter(t => {
+                const project = userProjects.find(p => p.id === t.projectId);
+                return project;
+            });
+
+            let inProgressCount = 0;
+            let completedCount = 0;
+
+            userProjects.forEach(project => {
+                const tasks = allTasks.filter(t => t.projectId === project.id);
+                const completedTasks = tasks.filter(t => t.status === 'done').length;
+                const progress = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+                
+                if (progress === 100 && tasks.length > 0) {
+                    completedCount++;
+                } else if (tasks.length > 0) {
+                    inProgressCount++;
+                }
+            });
+
+            // Update stats
+            document.getElementById('totalProjects').textContent = userProjects.length;
+            document.getElementById('inProgressProjects').textContent = inProgressCount;
+            document.getElementById('completedProjects').textContent = completedCount;
+            document.getElementById('totalTasks').textContent = userTasks.length;
+
+            // Filter projects
+            let filteredProjects = userProjects;
+            if (filter === 'inprogress') {
+                filteredProjects = userProjects.filter(project => {
+                    const tasks = allTasks.filter(t => t.projectId === project.id);
+                    const completedTasks = tasks.filter(t => t.status === 'done').length;
+                    const progress = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+                    return progress < 100 && tasks.length > 0;
+                });
+            } else if (filter === 'completed') {
+                filteredProjects = userProjects.filter(project => {
+                    const tasks = allTasks.filter(t => t.projectId === project.id);
+                    const completedTasks = tasks.filter(t => t.status === 'done').length;
+                    const progress = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+                    return progress === 100 && tasks.length > 0;
+                });
+            }
+
+            const grid = document.getElementById('projectsGrid');
+            
+            if (filteredProjects.length === 0) {
+                const emptyMessages = {
+                    all: 'No projects yet',
+                    inprogress: 'No projects in progress',
+                    completed: 'No completed projects'
+                };
+                const emptyDescriptions = {
+                    all: 'Create your first project to get started!',
+                    inprogress: 'Start working on your projects to see them here.',
+                    completed: 'Complete some projects to see them here.'
+                };
+
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">${emptyMessages[filter]}</h3>
+                        <p class="text-gray-500 mb-4">${emptyDescriptions[filter]}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredProjects.map(project => {
+                const tasks = allTasks.filter(t => t.projectId === project.id);
+                const completedTasks = tasks.filter(t => t.status === 'done').length;
+                const inProgressTasks = tasks.filter(t => t.status === 'inprogress').length;
+                const progress = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
+
+                const statusBadge = progress === 100 ? 
+                    '<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">✓ Completed</span>' :
+                    inProgressTasks > 0 ?
+                    '<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">⚙️ In Progress</span>' :
+                    '<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">📋 To Do</span>';
+
+                return `
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition cursor-pointer touch-feedback" onclick="openProject('${project.id}')">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-xl font-bold">${project.name}</h3>
+                            ${statusBadge}
+                        </div>
+                        <p class="text-gray-600 mb-4 line-clamp-2">${project.description || 'No description'}</p>
+                        <div class="mb-3">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span>Progress</span>
+                                <span class="font-semibold">${progress}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="h-2 rounded-full transition-all ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span>${tasks.length} task${tasks.length !== 1 ? 's' : ''}</span>
+                            <span>${completedTasks}/${tasks.length} done</span>
+                            <span>${project.members.length} member${project.members.length !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterProjects(filter) {
+            currentFilter = filter;
+            
+            // Update button styles
+            document.querySelectorAll('.project-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            const activeBtn = filter === 'all' ? 'filterAll' : 
+                             filter === 'inprogress' ? 'filterInProgress' : 
+                             'filterCompleted';
+            
+            document.getElementById(activeBtn).classList.remove('bg-gray-200', 'text-gray-700');
+            document.getElementById(activeBtn).classList.add('bg-blue-500', 'text-white');
+            
+            loadProjects(filter);
+        }
+
+        function openCreateProjectModal() {
+            document.getElementById('createProjectModal').classList.remove('hidden');
+        }
+
+        function closeCreateProjectModal() {
+            document.getElementById('createProjectModal').classList.add('hidden');
+            document.getElementById('newProjectName').value = '';
+            document.getElementById('newProjectDescription').value = '';
+        }
+
+        function createProject() {
+            const name = document.getElementById('newProjectName').value.trim();
+            const description = document.getElementById('newProjectDescription').value.trim();
+
+            if (!name) {
+                showNotification('Please enter a project name', 'error');
+                return;
+            }
+
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            const newProject = {
+                id: Date.now().toString(),
+                name,
+                description,
+                createdBy: currentUser.id,
+                members: [currentUser.id],
+                createdAt: new Date().toISOString()
+            };
+
+            projects.push(newProject);
+            localStorage.setItem('projects', JSON.stringify(projects));
+            
+            closeCreateProjectModal();
+            showNotification('Project created successfully!', 'success');
+            loadProjects();
+            
+            // Trigger storage event for real-time update simulation
+            triggerUpdate('project_created', newProject);
+        }
+
+        function openProject(projectId) {
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            currentProject = projects.find(p => p.id === projectId);
+            
+            if (!currentProject) return;
+
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('boardView').classList.remove('hidden');
+            document.getElementById('boardTitle').textContent = currentProject.name;
+            document.getElementById('boardDescription').textContent = currentProject.description;
+            
+            loadProjectMembers();
+            loadTasks();
+        }
+
+        function loadProjectMembers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const members = users.filter(u => currentProject.members.includes(u.id));
+            
+            const container = document.getElementById('projectMembers');
+            container.innerHTML = '<span class="text-sm text-gray-600">Members:</span>' + 
+                members.map(member => `
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold" title="${member.name}">
+                        ${member.name.charAt(0).toUpperCase()}
+                    </div>
+                `).join('');
+        }
+
+        // Task Functions
+        function openCreateTaskModal() {
+            document.getElementById('createTaskModal').classList.remove('hidden');
+            
+            // Populate assignee dropdown
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const members = users.filter(u => currentProject.members.includes(u.id));
+            const select = document.getElementById('newTaskAssignee');
+            select.innerHTML = '<option value="">Assign to...</option>' + 
+                members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        }
+
+        function closeCreateTaskModal() {
+            document.getElementById('createTaskModal').classList.add('hidden');
+            document.getElementById('newTaskTitle').value = '';
+            document.getElementById('newTaskDescription').value = '';
+            document.getElementById('newTaskDueDate').value = '';
+        }
+
+        function createTask() {
+            const title = document.getElementById('newTaskTitle').value.trim();
+            const description = document.getElementById('newTaskDescription').value.trim();
+            const priority = document.getElementById('newTaskPriority').value;
+            const dueDate = document.getElementById('newTaskDueDate').value;
+            const assigneeId = document.getElementById('newTaskAssignee').value;
+
+            if (!title) {
+                showNotification('Please enter a task title', 'error');
+                return;
+            }
+
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            const newTask = {
+                id: Date.now().toString(),
+                projectId: currentProject.id,
+                title,
+                description,
+                priority,
+                status: 'todo',
+                assigneeId: assigneeId || null,
+                createdBy: currentUser.id,
+                dueDate,
+                createdAt: new Date().toISOString(),
+                comments: []
+            };
+
+            tasks.push(newTask);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            
+            closeCreateTaskModal();
+            showNotification('Task created successfully!', 'success');
+            loadTasks();
+            
+            // Notify assigned user
+            if (assigneeId && assigneeId !== currentUser.id) {
+                createNotification(assigneeId, `${currentUser.name} assigned you a task: ${title}`, 'task_assigned');
+            }
+            
+            triggerUpdate('task_created', newTask);
+        }
+
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            const projectTasks = tasks.filter(t => t.projectId === currentProject.id);
+
+            // Clear columns
+            document.getElementById('todoColumn').innerHTML = '';
+            document.getElementById('inprogressColumn').innerHTML = '';
+            document.getElementById('doneColumn').innerHTML = '';
+
+            // Count tasks
+            const todoCnt = projectTasks.filter(t => t.status === 'todo').length;
+            const inprogressCnt = projectTasks.filter(t => t.status === 'inprogress').length;
+            const doneCnt = projectTasks.filter(t => t.status === 'done').length;
+
+            document.getElementById('todoCount').textContent = todoCnt;
+            document.getElementById('inprogressCount').textContent = inprogressCnt;
+            document.getElementById('doneCount').textContent = doneCnt;
+
+            // Render tasks
+            projectTasks.forEach(task => {
+                const taskElement = createTaskCard(task);
+                const column = document.getElementById(task.status + 'Column');
+                column.appendChild(taskElement);
+            });
+        }
+
+        function createTaskCard(task) {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const assignee = task.assigneeId ? users.find(u => u.id === task.assigneeId) : null;
+            
+            const card = document.createElement('div');
+            card.className = `bg-white p-4 rounded shadow hover:shadow-md priority-${task.priority} relative`;
+            card.draggable = true;
+            card.dataset.taskId = task.id;
+            card.ondragstart = drag;
+
+            const priorityColors = {
+                high: 'bg-red-100 text-red-800',
+                medium: 'bg-yellow-100 text-yellow-800',
+                low: 'bg-green-100 text-green-800'
+            };
+
+            const statusButtons = task.status === 'done' 
+                ? `<button onclick="event.stopPropagation(); markTaskStatus('${task.id}', 'inprogress')" class="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 touch-feedback">↩ Reopen</button>`
+                : task.status === 'inprogress'
+                ? `<button onclick="event.stopPropagation(); markTaskStatus('${task.id}', 'done')" class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 touch-feedback">✓ Complete</button>`
+                : `<button onclick="event.stopPropagation(); markTaskStatus('${task.id}', 'inprogress')" class="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 touch-feedback">▶ Start</button>`;
+
+            card.innerHTML = `
+                <div onclick="openTaskDetail('${task.id}')">
+                    <h4 class="font-semibold mb-2 ${task.status === 'done' ? 'line-through text-gray-500' : ''}">${task.title}</h4>
+                    ${task.description ? `<p class="text-sm text-gray-600 mb-2 ${task.status === 'done' ? 'line-through' : ''}">${task.description.substring(0, 100)}${task.description.length > 100 ? '...' : ''}</p>` : ''}
+                    <div class="flex items-center justify-between text-xs mt-2 mb-3">
+                        <span class="px-2 py-1 rounded ${priorityColors[task.priority]}">${task.priority}</span>
+                        ${assignee ? `
+                            <div class="flex items-center space-x-1">
+                                <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs">
+                                    ${assignee.name.charAt(0).toUpperCase()}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${task.dueDate ? `<div class="text-xs text-gray-500 mt-2 ${task.status === 'done' ? 'line-through' : ''}">📅 ${new Date(task.dueDate).toLocaleDateString()}</div>` : ''}
+                    ${task.comments.length > 0 ? `<div class="text-xs text-gray-500 mt-1">💬 ${task.comments.length} comment${task.comments.length !== 1 ? 's' : ''}</div>` : ''}
+                </div>
+                <div class="mt-3 pt-3 border-t flex items-center justify-between">
+                    ${statusButtons}
+                    <button onclick="event.stopPropagation(); openTaskDetail('${task.id}')" class="text-xs text-blue-600 hover:text-blue-800">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function markTaskStatus(taskId, newStatus) {
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (task) {
+                const oldStatus = task.status;
+                task.status = newStatus;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                loadTasks();
+                
+                const statusText = newStatus === 'done' ? 'completed' : newStatus === 'inprogress' ? 'started' : 'reopened';
+                showNotification(`Task ${statusText}!`, 'success');
+                
+                // Notify task owner and assignee
+                if (task.assigneeId && task.assigneeId !== currentUser.id) {
+                    createNotification(task.assigneeId, `${currentUser.name} ${statusText} "${task.title}"`, 'task_updated');
+                }
+                
+                triggerUpdate('task_updated', task);
+            }
+        }
+
+        // Drag and Drop Functions
+        function drag(ev) {
+            ev.dataTransfer.setData('taskId', ev.target.dataset.taskId);
+            ev.target.classList.add('dragging');
+        }
+
+        function allowDrop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(ev) {
+            ev.currentTarget.classList.remove('drag-over');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('drag-over');
+            
+            const taskId = ev.dataTransfer.getData('taskId');
+            const newStatus = ev.currentTarget.dataset.status;
+            
+            updateTaskStatus(taskId, newStatus);
+        }
+
+        function updateTaskStatus(taskId, newStatus) {
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            const task = tasks.find(t => t.id === taskId);
+            
+            if (task) {
+                const oldStatus = task.status;
+                task.status = newStatus;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                loadTasks();
+                
+                showNotification('Task moved to ' + newStatus.replace('inprogress', 'in progress'), 'success');
+                
+                // Notify task owner and assignee
+                if (task.assigneeId && task.assigneeId !== currentUser.id) {
+                    createNotification(task.assigneeId, `${currentUser.name} moved "${task.title}" to ${newStatus}`, 'task_updated');
+                }
+                
+                triggerUpdate('task_updated', task);
+            }
+        }
+
+        // Task Detail Functions
+        function openTaskDetail(taskId) {
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            currentTask = tasks.find(t => t.id === taskId);
+            
+            if (!currentTask) return;
+
+            document.getElementById('taskDetailModal').classList.remove('hidden');
+            document.getElementById('taskDetailTitle').textContent = currentTask.title;
+            document.getElementById('taskDetailDescription').textContent = currentTask.description || 'No description';
+
+            // Priority badge
+            const priorityColors = {
+                high: 'bg-red-100 text-red-800',
+                medium: 'bg-yellow-100 text-yellow-800',
+                low: 'bg-green-100 text-green-800'
+            };
+            document.getElementById('taskDetailPriority').className = `px-3 py-1 rounded-full text-sm font-semibold ${priorityColors[currentTask.priority]}`;
+            document.getElementById('taskDetailPriority').textContent = currentTask.priority.toUpperCase();
+
+            // Status badge
+            const statusColors = {
+                todo: 'bg-gray-100 text-gray-800',
+                inprogress: 'bg-blue-100 text-blue-800',
+                done: 'bg-green-100 text-green-800'
+            };
+            document.getElementById('taskDetailStatus').className = `px-3 py-1 rounded-full text-sm font-semibold ${statusColors[currentTask.status]}`;
+            document.getElementById('taskDetailStatus').textContent = currentTask.status.replace('inprogress', 'IN PROGRESS').toUpperCase();
+
+            // Assignee
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const assignee = currentTask.assigneeId ? users.find(u => u.id === currentTask.assigneeId) : null;
+            document.getElementById('taskDetailAssignee').innerHTML = assignee ? `
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                    ${assignee.name.charAt(0).toUpperCase()}
+                </div>
+                <span>${assignee.name}</span>
+            ` : '<span class="text-gray-500">Unassigned</span>';
+
+            // Due date
+            document.getElementById('taskDetailDueDate').textContent = currentTask.dueDate ? 
+                new Date(currentTask.dueDate).toLocaleDateString() : 'No due date';
+
+            // Load comments
+            loadComments();
+        }
+
+        function closeTaskDetailModal() {
+            document.getElementById('taskDetailModal').classList.add('hidden');
+            currentTask = null;
+        }
+
+        function loadComments() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const commentsContainer = document.getElementById('taskComments');
+            
+            if (!currentTask.comments || currentTask.comments.length === 0) {
+                commentsContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No comments yet</p>';
+                return;
+            }
+
+            commentsContainer.innerHTML = currentTask.comments.map(comment => {
+                const user = users.find(u => u.id === comment.userId);
+                return `
+                    <div class="flex space-x-2">
+                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                            ${user ? user.name.charAt(0).toUpperCase() : '?'}
+                        </div>
+                        <div class="flex-1">
+                            <div class="bg-gray-100 rounded-lg p-3">
+                                <div class="font-semibold text-sm">${user ? user.name : 'Unknown'}</div>
+                                <p class="text-sm">${comment.text}</p>
+                            </div>
+                            <div class="text-xs text-gray-500 mt-1">${new Date(comment.timestamp).toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addComment() {
+            const commentText = document.getElementById('newComment').value.trim();
+            
+            if (!commentText) {
+                showNotification('Please enter a comment', 'error');
+                return;
+            }
+
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            const task = tasks.find(t => t.id === currentTask.id);
+            
+            if (task) {
+                if (!task.comments) task.comments = [];
+                
+                const comment = {
+                    id: Date.now().toString(),
+                    userId: currentUser.id,
+                    text: commentText,
+                    timestamp: new Date().toISOString()
+                };
+
+                task.comments.push(comment);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                
+                currentTask = task;
+                loadComments();
+                document.getElementById('newComment').value = '';
+                
+                // Notify others
+                if (task.assigneeId && task.assigneeId !== currentUser.id) {
+                    createNotification(task.assigneeId, `${currentUser.name} commented on "${task.title}"`, 'comment_added');
+                }
+                
+                triggerUpdate('comment_added', { taskId: task.id, comment });
+            }
+        }
+
+        function deleteTask() {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+
+            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+            const updatedTasks = tasks.filter(t => t.id !== currentTask.id);
+            localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+            
+            closeTaskDetailModal();
+            loadTasks();
+            showNotification('Task deleted', 'success');
+            
+            triggerUpdate('task_deleted', currentTask);
+        }
+
+        // Member Management
+        function openManageMembersModal() {
+            document.getElementById('manageMembersModal').classList.remove('hidden');
+            loadCurrentMembers();
+        }
+
+        function closeManageMembersModal() {
+            document.getElementById('manageMembersModal').classList.add('hidden');
+        }
+
+        function loadCurrentMembers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const members = users.filter(u => currentProject.members.includes(u.id));
+            
+            const container = document.getElementById('currentMembersList');
+            container.innerHTML = members.map(member => `
+                <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                            ${member.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span>${member.name} ${member.id === currentProject.createdBy ? '(Owner)' : ''}</span>
+                    </div>
+                    ${member.id !== currentProject.createdBy ? `
+                        <button onclick="removeMember('${member.id}')" class="text-red-500 hover:text-red-700 text-sm">Remove</button>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function addMemberToProject() {
+            const username = document.getElementById('addMemberUsername').value.trim();
+            
+            if (!username) {
+                showNotification('Please enter a username', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u => u.username === username);
+
+            if (!user) {
+                showNotification('User not found', 'error');
+                return;
+            }
+
+            if (currentProject.members.includes(user.id)) {
+                showNotification('User is already a member', 'error');
+                return;
+            }
+
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            const project = projects.find(p => p.id === currentProject.id);
+            
+            if (project) {
+                project.members.push(user.id);
+                localStorage.setItem('projects', JSON.stringify(projects));
+                currentProject = project;
+                
+                loadCurrentMembers();
+                loadProjectMembers();
+                document.getElementById('addMemberUsername').value = '';
+                showNotification('Member added successfully', 'success');
+                
+                // Notify the new member
+                createNotification(user.id, `You've been added to project "${project.name}"`, 'member_added');
+                
+                triggerUpdate('member_added', { projectId: project.id, userId: user.id });
+            }
+        }
+
+        function removeMember(userId) {
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            const project = projects.find(p => p.id === currentProject.id);
+            
+            if (project) {
+                project.members = project.members.filter(id => id !== userId);
+                localStorage.setItem('projects', JSON.stringify(projects));
+                currentProject = project;
+                
+                loadCurrentMembers();
+                loadProjectMembers();
+                showNotification('Member removed', 'success');
+            }
+        }
+
+        // Notification Functions
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500',
+                warning: 'bg-yellow-500'
+            };
+
+            notification.className = `notification ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function createNotification(userId, message, type) {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const notification = {
+                id: Date.now().toString(),
+                userId,
+                message,
+                type,
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+
+            notifications.push(notification);
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+            
+            // Update badge if it's for current user
+            if (currentUser && userId === currentUser.id) {
+                updateNotificationBadge();
+            }
+        }
+
+        function loadNotifications() {
+            const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const userNotifications = allNotifications.filter(n => n.userId === currentUser.id);
+            notifications = userNotifications;
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            const unreadCount = notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('notificationBadge');
+            
+            if (unreadCount > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = unreadCount;
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('hidden');
+            
+            if (!panel.classList.contains('hidden')) {
+                renderNotifications();
+            }
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notificationList');
+            
+            if (notifications.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-4">No notifications</p>';
+                return;
+            }
+
+            container.innerHTML = notifications.slice().reverse().map(notif => `
+                <div class="p-3 hover:bg-gray-50 rounded ${notif.read ? 'opacity-60' : 'bg-blue-50'}">
+                    <p class="text-sm">${notif.message}</p>
+                    <span class="text-xs text-gray-500">${new Date(notif.timestamp).toLocaleString()}</span>
+                </div>
+            `).join('');
+
+            // Mark all as read
+            const allNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            allNotifications.forEach(n => {
+                if (n.userId === currentUser.id) n.read = true;
+            });
+            localStorage.setItem('notifications', JSON.stringify(allNotifications));
+            notifications = allNotifications.filter(n => n.userId === currentUser.id);
+            updateNotificationBadge();
+        }
+
+        // Real-time Update Simulation
+        function triggerUpdate(eventType, data) {
+            const update = {
+                type: eventType,
+                data,
+                timestamp: Date.now(),
+                userId: currentUser.id
+            };
+            localStorage.setItem('lastUpdate', JSON.stringify(update));
+        }
+
+        function handleStorageChange(e) {
+            if (e.key === 'lastUpdate' && currentUser) {
+                const update = JSON.parse(e.newValue);
+                
+                // Don't process our own updates
+                if (update.userId === currentUser.id) return;
+
+                // Refresh views based on update type
+                if (currentProject && update.data.projectId === currentProject.id) {
+                    loadTasks();
+                    showNotification('Project updated by another user', 'info');
+                } else if (!currentProject) {
+                    loadProjects();
+                }
+                
+                loadNotifications();
+            }
+        }
+
+        function checkForUpdates() {
+            if (!currentUser) return;
+            
+            // Reload notifications periodically
+            loadNotifications();
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'createProjectModal') closeCreateProjectModal();
+            if (e.target.id === 'createTaskModal') closeCreateTaskModal();
+            if (e.target.id === 'taskDetailModal') closeTaskDetailModal();
+            if (e.target.id === 'manageMembersModal') closeManageMembersModal();
+        });
+
+        // Initialize on page load
+        init();
+    </script>
+
+    <!-- Developer Credit Footer - Minimal & Animated -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-t border-slate-800/50 py-3 z-10">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-slate-500 text-xs md:text-sm bounce-in">
+                Crafted with <span class="text-red-500 animate-pulse">♥</span> by 
+                <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent font-bold">
+                    NABEEL AHMED G
+                </span>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
