@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CodeAlpha Shop — Modern E-Commerce</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Navigation Header -->
+  <header class="header">
+    <div class="logo">🛍️ CodeAlpha Shop</div>
+    <div class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#deals">Deals</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="search"><input id="search" type="search" placeholder="Search products..." aria-label="Search products" /></div>
+    <div class="controls">
+      <button id="wishlistBtn" class="icon-btn" title="Wishlist">❤️ <span id="wishlistCount" class="notification-badge" style="display:none">0</span></button>
+      <button id="notificationBtn" class="icon-btn" title="Notifications">🔔 <span id="notificationCount" class="notification-badge" style="display:none">0</span></button>
+      <button id="cartBtn" class="btn">🛒 Cart (<span id="cartCount">0</span>)</button>
+      <button id="userBtn" class="icon-btn" title="Account">👤</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Sidebar Filters -->
+    <aside class="sidebar">
+      <h4>Filters</h4>
+      
+      <div class="filter-group">
+        <label>Category</label>
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Price Range: $<span id="maxPriceLabel">1000</span></label>
+        <input id="priceRange" type="range" min="0" max="1000" value="1000" />
+      </div>
+
+      <div class="filter-group">
+        <label><input type="checkbox" id="inStockOnly" /> In Stock Only</label>
+      </div>
+
+      <div class="filter-group">
+        <label><input type="checkbox" id="onSaleOnly" /> On Sale</label>
+      </div>
+
+      <div class="filter-group">
+        <label>Sort By</label>
+        <select id="sortFilter">
+          <option value="newest">Newest</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Highest Rated</option>
+          <option value="popular">Most Popular</option>
+        </select>
+      </div>
+
+      <button id="clearFilters" class="btn secondary" style="width:100%;margin-top:12px">Clear Filters</button>
+    </aside>
+
+    <!-- Main Content -->
+    <section>
+      <div class="breadcrumb">
+        <a href="#home">Home</a> / <span id="currentCategory">Products</span>
+      </div>
+
+      <div class="sort-bar">
+        <div class="small" id="resultsInfo">Showing products</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="small">View:</span>
+          <button id="gridView" class="icon-btn" title="Grid View">⊞</button>
+          <button id="listView" class="icon-btn" title="List View">≡</button>
+        </div>
+      </div>
+
+      <div id="products" class="products-grid"></div>
+      <div id="pagination" class="pagination"></div>
+    </section>
+  </main>
+
+  <!-- Product Detail Modal -->
+  <div id="productModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modalTitle" style="margin:0"></h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <div class="product-detail">
+        <div class="detail-image" id="modalImg"></div>
+        <div class="detail-info">
+          <div class="detail-rating">
+            <span class="stars" id="modalRating">⭐⭐⭐⭐⭐</span>
+            <span class="review-summary" id="modalReviewCount">0 reviews</span>
+          </div>
+          <p id="modalCategory" class="small"></p>
+          <p id="modalDesc"></p>
+          
+          <div class="price-section">
+            <div class="price" id="modalPrice"></div>
+            <div class="price-old" id="modalOldPrice" style="display:none"></div>
+            <div class="stock-status" id="modalStock"><span>✓</span> In Stock</div>
+          </div>
+
+          <div class="qty-selector">
+            <button class="qty-btn" id="qtyMinus">−</button>
+            <div class="qty-display" id="qtyDisplay">1</div>
+            <button class="qty-btn" id="qtyPlus">+</button>
+          </div>
+
+          <div style="display:flex;gap:8px">
+            <button id="modalAdd" class="btn" style="flex:1">Add to Cart</button>
+            <button id="modalWishlist" class="wishlist-btn">❤️</button>
+          </div>
+
+          <div class="tabs">
+            <div class="tab active" data-tab="description">Description</div>
+            <div class="tab" data-tab="reviews">Reviews</div>
+            <div class="tab" data-tab="shipping">Shipping</div>
+          </div>
+
+          <div id="description" class="tab-content active">
+            <p id="detailedDesc"></p>
+          </div>
+          <div id="reviews" class="tab-content">
+            <div id="reviewsList"></div>
+          </div>
+          <div id="shipping" class="tab-content">
+            <p>Standard Shipping: 5-7 business days</p>
+            <p>Express Shipping: 2-3 business days</p>
+            <p>Free shipping on orders over $50</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div id="cartModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="margin:0">Shopping Cart</h2>
+        <button class="modal-close" id="closeCart">✕</button>
+      </div>
+      <div id="cartContent"></div>
+      <div class="cart-summary" id="cartSummary" style="display:none">
+        <div class="summary-row"><span>Subtotal:</span> <span id="subtotal">$0.00</span></div>
+        <div class="summary-row"><span>Shipping:</span> <span id="shipping">$0.00</span></div>
+        <div class="summary-row"><span>Tax:</span> <span id="tax">$0.00</span></div>
+        <div class="summary-row summary-total"><span>Total:</span> <span id="total">$0.00</span></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button id="continueShopping" class="btn secondary" style="flex:1">Continue Shopping</button>
+        <button id="checkout" class="btn" style="flex:1">Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wishlist Modal -->
+  <div id="wishlistModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="margin:0">My Wishlist</h2>
+        <button class="modal-close" id="closeWishlist">✕</button>
+      </div>
+      <div id="wishlistContent"></div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkoutModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="margin:0">Checkout</h2>
+        <button class="modal-close" id="closeCheckout">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <h4>Shipping Address</h4>
+          <input type="text" id="firstName" placeholder="First Name" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+          <input type="text" id="lastName" placeholder="Last Name" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+          <input type="email" id="email" placeholder="Email" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+          <input type="text" id="address" placeholder="Address" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+          <input type="text" id="city" placeholder="City" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+          <input type="text" id="zip" placeholder="ZIP Code" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+        </div>
+        <div>
+          <h4>Payment Information</h4>
+          <input type="text" id="cardName" placeholder="Cardholder Name" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+          <input type="text" id="cardNumber" placeholder="Card Number" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #e6eef8;border-radius:6px" />
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <input type="text" id="expiry" placeholder="MM/YY" style="padding:8px;border:1px solid #e6eef8;border-radius:6px" />
+            <input type="text" id="cvv" placeholder="CVV" style="padding:8px;border:1px solid #e6eef8;border-radius:6px" />
+          </div>
+          <div style="margin-top:16px;padding:12px;background:#f9f9fb;border-radius:6px">
+            <div class="summary-row" style="margin-bottom:8px"><span>Subtotal:</span> <span id="checkoutSubtotal">$0.00</span></div>
+            <div class="summary-row" style="margin-bottom:8px"><span>Shipping:</span> <span id="checkoutShipping">$0.00</span></div>
+            <div class="summary-row summary-total"><span>Total:</span> <span id="checkoutTotal">$0.00</span></div>
+          </div>
+          <button id="placeOrder" class="btn success" style="width:100%;margin-top:12px">Place Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation Modal -->
+  <div id="confirmationModal" class="modal" aria-hidden="true">
+    <div class="modal-card" style="text-align:center">
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <h2>Order Confirmed!</h2>
+      <p id="confirmationMessage"></p>
+      <p class="small">Order ID: <strong id="orderId"></strong></p>
+      <button id="continueAfterOrder" class="btn" style="width:100%">Continue Shopping</button>
+    </div>
+  </div>
+
+  <!-- Notifications Modal -->
+  <div id="notificationsModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="margin:0">Notifications</h2>
+        <button class="modal-close" id="closeNotifications">✕</button>
+      </div>
+      <div id="notificationsList"></div>
+    </div>
+  </div>
+
+  <!-- User Account Modal -->
+  <div id="userModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 style="margin:0">My Account</h2>
+        <button class="modal-close" id="closeUser">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <h4>Profile Information</h4>
+          <p><strong id="userName">Guest User</strong></p>
+          <p id="userEmail" class="small"></p>
+          <button id="editProfile" class="btn secondary" style="width:100%;margin-top:8px">Edit Profile</button>
+        </div>
+        <div>
+          <h4>Order History</h4>
+          <div id="orderHistory"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
